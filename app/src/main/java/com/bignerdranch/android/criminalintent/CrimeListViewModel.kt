@@ -2,6 +2,8 @@ package com.bignerdranch.android.criminalintent
 
 import androidx.lifecycle.ViewModel
 
+
+//Create a list of 100 fake crimes.
 class CrimeListViewModel : ViewModel() {
 
     val crimes = mutableListOf<Crime>()
