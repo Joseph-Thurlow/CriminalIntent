@@ -3,17 +3,10 @@ package com.bignerdranch.android.criminalintent
 import androidx.lifecycle.ViewModel
 
 
-//Create a list of 100 fake crimes.
+//Pull crimes from database.
 class CrimeListViewModel : ViewModel() {
-
-    val crimes = mutableListOf<Crime>()
-
-    init {
-        for (i in 0 until 100) {
-            val crime = Crime()
-            crime.title = "Crime #$i"
-            crime.isSolved = i%2 == 0
-            crimes += crime
-        }
-    }
+    //As the CrimeRepository is already initialized in CriminalIntentApplication get() can be called.
+    private val crimeRepository = CrimeRepository.get()
+    //Retrieves a list of crimes from the database.
+    val crimeListLiveData = crimeRepository.getCrimes()
 }
