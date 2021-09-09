@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,10 +14,21 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
 class CrimeListFragment : Fragment() {
+
+    /**
+     * Required interface for hosting activities
+     */
+    //Gives the ability for crimeListFragment to call function on its hosting activity.
+    interface Callbacks {
+        fun onCrimeSelected(crimeId: UUID)
+    }
+
+    private var callbacks: Callbacks? = null
 
     //Lateinit lets the value be assigned later.
     private lateinit var crimeRecyclerView: RecyclerView
@@ -25,6 +37,13 @@ class CrimeListFragment : Fragment() {
     //CrimeListViewModel is initialized to the variable using the supplied lambda.
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context) {
+        //The fragment.onAttach(Context) lifecycle function is called when a fragment is attached
+        //to an activity.
+        super.onAttach(context)
+        callbacks = context as Callbacks?
     }
 
     //Loads the fragment_crime_list.xml layout.
@@ -61,6 +80,11 @@ class CrimeListFragment : Fragment() {
         )
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
     private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
@@ -95,8 +119,9 @@ class CrimeListFragment : Fragment() {
             }
         }
 
-        override fun onClick(p0: View?) {
-            Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT).show()
+        //Pressing a crime notifies the hosting activity via the Callbacks interface.
+        override fun onClick(v: View?) {
+            callbacks?.onCrimeSelected(crime.id)
         }
     }
 

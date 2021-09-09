@@ -16,4 +16,12 @@ interface CrimeDao {
 
     @Query("SELECT * FROM crime WHERE id=(:id)")
     fun getCrime(id: UUID): LiveData<Crime?>
+
+    //Takes in a crime object, uses the ID stored in that crime to find the associated row, then
+    //updates the data in that row based on the new data in the crime object.
+    @Update
+    fun updateCrime(crime: Crime)
+
+    @Insert
+    fun addCrime(crime: Crime)
 }
