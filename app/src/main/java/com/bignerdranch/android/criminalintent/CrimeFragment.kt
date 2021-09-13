@@ -11,13 +11,17 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate" //identifies the dialog fragment.
+private const val ARG_REQUEST_CODE = "requestDate"
+private const val RESULT_DATE_KEY = "resultDate"
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), FragmentResultListener {
 
     private lateinit var crime: Crime
     private lateinit var titleField: EditText
@@ -45,16 +49,15 @@ class CrimeFragment : Fragment() {
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
 
-        dateButton.apply {
-            text = crime.date.toString()
-            isEnabled = false
-        }
-
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        childFragmentManager.setFragmentResultListener(ARG_REQUEST_CODE, viewLifecycleOwner, this)
+
         //Observe crimeLiveData and update the UI any time new data is published
         crimeDetailViewModel.crimeLiveData.observe(
             viewLifecycleOwner,
@@ -65,6 +68,15 @@ class CrimeFragment : Fragment() {
                 }
             }
         )
+    }
+
+    override fun onFragmentResult(requestCode: String, result: Bundle) {
+        when(requestCode) {
+            ARG_REQUEST_CODE -> {
+                crime.date = result.getSerializable(RESULT_DATE_KEY) as Date
+                updateUI()
+            }
+        }
     }
 
     override fun onStart() {
@@ -100,6 +112,15 @@ class CrimeFragment : Fragment() {
         solvedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
                 crime.isSolved = isChecked
+            }
+        }
+
+        //Sets a listener to the dateButton.
+        dateButton.setOnClickListener {
+
+            //Passes in crime date data into newInstance.
+            DatePickerFragment.newInstance(crime.date).apply {
+                show(this@CrimeFragment.childFragmentManager, DIALOG_DATE)
             }
         }
     }
