@@ -9,4 +9,8 @@ class CrimeListViewModel : ViewModel() {
     private val crimeRepository = CrimeRepository.get()
     //Retrieves a list of crimes from the database.
     val crimeListLiveData = crimeRepository.getCrimes()
+
+    fun addCrime(crime: Crime) {
+        crimeRepository.addCrime(crime)
+    }
 }
